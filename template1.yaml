@@ -1,0 +1,60 @@
+AWSTemplateFormatVersion: 2010-09-09
+
+# just hard-coding these because it's a demo
+Parameters: 
+  CallingAccountId:
+    Type: String
+    Default: 'calling-account-id'
+  DestinationRoleArn:
+    Type: String
+    Default: 'your-destination-role-arn'
+  DestinationLambdaArn:
+    Type: String
+    Default: 'your-destination-lambda-arn'
+
+Resources:
+  DestinationIAMRole: 
+    Type: AWS::IAM::Role
+    Properties:
+        RoleName: "destination-lambda-iam-role"
+        AssumeRolePolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Sid: ''
+                Effect: Allow
+                Principal:
+                  AWS: !Sub "arn:aws:iam::${CallingAccountId}:root"
+                Action: 'sts:AssumeRole'
+        Policies:
+          - 
+            PolicyName: "run-destination-lambda"
+            PolicyDocument: 
+              Version: "2012-10-17"
+              Statement: 
+                - 
+                  Effect: "Allow"
+                  Action: "lambda:InvokeFunction"
+                  Resource: !Sub "arn:aws:iam::${CallingAccountId}:role"
+
+  SourceIAMRole: 
+    Type: AWS::IAM::Role
+    Properties:
+        RoleName: "source-lambda-iam-role"
+        AssumeRolePolicyDocument:
+          Version: 2012-10-17
+          Statement:
+            - Sid: ''
+              Effect: Allow
+              Principal:
+                Service:  lambda.amazonaws.com
+              Action: 'sts:AssumeRole'
+        Policies:
+          - 
+            PolicyName: "helen-assume-destination-role-policy"
+            PolicyDocument: 
+              Version: "2012-10-17"
+              Statement: 
+                - 
+                  Effect: "Allow"
+                  Action: "sts:AssumeRole"
+                  Resource: !Join ["", [!Sub "${DestinationRoleArn}"]]
