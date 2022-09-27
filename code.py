@@ -1,3 +1,4 @@
+from importlib.metadata import files
 from os import pipe
 from  . import executeNotificationClient
 import pandas as pd
@@ -23,25 +24,10 @@ if __name__ == "__main__":
     for i in range(df.shape[0]): #10
         result = poll(df['App Prefix'].iloc[i], df['Pipeline'].iloc[i], df['Database'].iloc[i], df['Table'].iloc[i])
         if result[1] == "SUCCESS":
-            try:
-                firstmain(env, spark)
-                print("First File Completed")
-            except Exception as e:
-                print(f"FIle execution failed because of error {e}")
-            try:
-                secondmain(env, spark)
-                print("First File Completed")
-            except Exception as e:
-                print(f"FIle execution failed because of error {e}")
-            try:
-                thridmain(env, spark)
-                print("First File Completed")
-            except Exception as e:
-                print(f"FIle execution failed because of error {e}")
-        
+            success.append(result)
         else:
             failure.append(result)
-            msg_body = "Failed"
-            Subject  = "Poll Result status failed"
-            send_email(to, msg_body, Subject)
-    
+    if len(failure) == 0:
+        #run three files
+    else:
+        #send email code. 
