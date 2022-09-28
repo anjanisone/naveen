@@ -7,6 +7,8 @@ from secondfile import main as secondmain
 from thirdfile import main as thridmain
 from . import send_email
 
+from config import tables
+
 def poll(app_prefix, pipeline_name, database_name, table_name):
     res = executeNotificationClient(action="poll", message = f'''[{"app_prefix":{app_prefix}, "pipeline":{pipeline_name}, "db":{database_name}, "table":{table_name}}]''', app_prefix = app_prefix, pipeline = pipeline_name, messageType = "transformation",
     subject = "test subject")
@@ -16,13 +18,11 @@ def poll(app_prefix, pipeline_name, database_name, table_name):
 
 
 if __name__ == "__main__":
-    df = pd.read_csv("file.csv")
-    env = ""
-    spark = sparkcontent()
+    
     success = []
     failure = []
-    for i in range(df.shape[0]): #10
-        result = poll(df['App Prefix'].iloc[i], df['Pipeline'].iloc[i], df['Database'].iloc[i], df['Table'].iloc[i])
+    for key in tables.keys(): #10
+        result = poll(tables[key]['app_prefix'], tables[key]['pipeline'], tables[key]['Database'], tables[key]['database_name'])
         if result[1] == "SUCCESS":
             success.append(result)
         else:
@@ -30,4 +30,5 @@ if __name__ == "__main__":
     if len(failure) == 0:
         #run three files
     else:
+        pass
         #send email code. 
